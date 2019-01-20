@@ -1,0 +1,104 @@
+﻿@model IEnumerable<BookingSystem.Models.BookingViewModel>
+
+@{
+    ViewBag.Title = "View Bookings";
+}
+
+<h2>View Bookings</h2>
+
+<p>
+    @Html.ActionLink("Create Booking", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.BookingId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Phone)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CheckInDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CheckOutDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.IsCancelled)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CancelledDate)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookingId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Phone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CheckInDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CheckOutDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsCancelled)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CancelledDate)
+            </td>
+            <td>
+                @using (Html.BeginForm("Cancel", "Booking", new { id = item.Id }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" id="btnCancelBooking@(item.Id)" class="btn btn-danger @(item.IsCancelled || item.CheckOutDate < DateTime.Now ? "hide": "")" value="Cancel" data-checkoutdate="@(item.CheckOutDate.ToString("yyyy-MM-dd HH:mm:ss"))">Cancel</button>
+                }
+            </td>
+        </tr>
+    }
+
+</table>
+
+@section Scripts {
+    <script type="text/javascript">
+            var model = JSON.parse('@Html.Raw(Json.Encode(Model))');
+            $(document).ready(function () {
+                $("form").on("submit", function (evt) {
+                    var submitButton = $(this).find('button[type="submit"]');
+                    var checkOutDate = new Date(submitButton.attr('data-checkoutdate'));
+
+                    if (checkOutDate < new Date()) {
+                        alert('Cannot cancel this booking after the check-out time');
+                        return false;
+                    }
+
+                    if (confirm('Are you sure you want to cancel this booking?')) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+
+            });
+    </script>
+}
